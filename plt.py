@@ -1,11 +1,8 @@
 from colour.plotting import *
 import numpy as np
 
-plot_chromaticity_diagram_CIE1976UCS(standalone=False)
 
 import matplotlib.pyplot as plt
-
-
 import pandas as pd
 xyz = pd.read_excel(io=r'xyz.xlsx')
 xyz = xyz.values
@@ -45,8 +42,9 @@ for i in range(0, 12000):
     # print(result[i, :])
 
 print(result)
+plot_chromaticity_diagram_CIE1960UCS(standalone=False)
 plt.plot(result[:, 1], result[:, 2], '-')
-
-
 plt.axis([-0.1, 0.7, -0.1, 0.7])    #改变坐标轴范围
 plt.show()
+
+plot_planckian_locus_in_chromaticity_diagram_CIE1960UCS(['A', 'B', 'C'])  # one step
