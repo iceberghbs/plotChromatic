@@ -6,7 +6,6 @@ import numpy as np
 plot_chromaticity_diagram_CIE1976UCS(standalone=False)
 
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 
 ax = plt.gca()       # 获取CIE1976UCS的坐标系
 
@@ -28,32 +27,19 @@ pointer_bound= ([[ 0.508, 0.226], [ 0.538, 0.258], [ 0.588, 0.280], [ 0.637, 0.2
                                       [ 0.129, 0.168], [ 0.138, 0.141], [ 0.145, 0.129], [ 0.145, 0.106], [ 0.161, 0.094], 
                                       [ 0.188, 0.084], [ 0.252, 0.104], [ 0.324, 0.127], [ 0.393, 0.165], [ 0.451, 0.199], [ 0.508, 0.226]])
 pointer_bound_uv=colour.xy_to_Luv_uv(pointer_bound)
-# matplotlib绘制四个多边形，对应四种颜色空间
-gamut_709=patches.Polygon(ITUR_709_uv, linewidth=2, color='green', fill=False)
-gamut_2020=patches.Polygon(ITUR_2020_uv, linewidth=2, color='yellow', fill=False)
-gamut_DCI_P3=patches.Polygon(DCI_P3_uv, linewidth=1, color='blue', fill=False)
-gamut_pointer=patches.Polygon(pointer_bound_uv, linewidth=2, color='white', fill=False)
-ax.add_patch(gamut_709)
-ax.add_patch(gamut_2020)
-ax.add_patch(gamut_DCI_P3)
-ax.add_patch(gamut_pointer)
-plt.legend([gamut_709,gamut_2020, gamut_DCI_P3, gamut_pointer],
-    ['ITU-R BT.709','ITU-R BT.2020', 'DCI-P3', 'pointer gamut'],
-    loc='upper right')  # 对曲线的标注
-plt.axis([-0.1, 0.7, -0.1, 0.7])    #改变坐标轴范围
-plt.show()
+
 
 import pandas as pd
 xyz = pd.read_excel(io=r'xyz.xlsx')
 xyz = xyz.values
 xyz = xyz.reshape((-1, 7))
-x_bar = xyz[:, 1]
-y_bar = xyz[:, 2]
-z_bar = xyz[:, 3]
-# print(xyz[:, 0])  # test
+x_bar = xyz[:, 4]
+y_bar = xyz[:, 5]
+z_bar = xyz[:, 6]
+# print(xyz)  # test
 
 C1 = 3.7418e-12
-C2 = 1.4388e-2
+C2 = 1.4388e4
 
 def blackBody(t):  
     waveLengths = np.array(range(380, 785, 5), dtype=np.int64)
@@ -69,16 +55,21 @@ for i in range(0, 12000):
     P_Lamda = blackBody(i+1)
     # print(P_Lamda)
 
-    X = np.dot(P_Lamda, x_bar)
-    Y = np.dot(P_Lamda, y_bar)
-    Z = np.dot(P_Lamda, z_bar)
+    X = np.dot(P_Lamda, x_bar) * 5
+    Y = np.dot(P_Lamda, y_bar) * 5
+    Z = np.dot(P_Lamda, z_bar) * 5
 
     x = X/(X+Y+Z)
     y = Y/(X+Y+Z)
     z = Z/(X+Y+Z)
     # print(x, y, z)
 
-    result[i, :] = [i, x, y, z]
+    result[i, :] = [i+1, x, y, z]
+    # print(result[i, :])
 
 print(result)
+plt.plot(result[:, 1], result[:, 3], 'r*')
 
+
+plt.axis([-0.1, 0.7, -0.1, 0.7])    #改变坐标轴范围
+plt.show()
